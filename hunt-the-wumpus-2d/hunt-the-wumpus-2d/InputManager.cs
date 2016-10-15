@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 
 namespace hunt_the_wumpus_2d
 {
@@ -18,23 +17,23 @@ namespace hunt_the_wumpus_2d
         }
 
         /// <summary>
-        /// Uses previous and current key state to determine of the given keys were pressed.
+        ///     Uses previous and current key state to determine the given key was released.
         /// </summary>
-        /// <param name="keys"></param>
-        /// <returns>true if the current key state is down and the previous state was up.</returns>
-        public bool KeyPressed(params Keys[] keys)
+        /// <param name="key"></param>
+        /// <returns>true if the given key have a current key state is down and the previous state was up.</returns>
+        public bool KeyPressed(Keys key)
         {
-            return keys.Any(key => _currentKeyState.IsKeyDown(key) && _previousKeyState.IsKeyUp(key));
+            return _currentKeyState.IsKeyDown(key) && _previousKeyState.IsKeyUp(key);
         }
 
         /// <summary>
-        /// Uses previous and current key state to determine of the given keys were released.
+        ///     Uses previous and current key state to determine the given key was pressed.
         /// </summary>
-        /// <param name="keys"></param>
-        /// <returns>true if the current key state is up and the previous state was down.</returns>
-        public bool KeyReleased(params Keys[] keys)
+        /// <param name="key"></param>
+        /// <returns>true if the given key have a current key state is up and the previous state was down.</returns>
+        public bool KeyReleased(Keys key)
         {
-            return keys.Any(key => _currentKeyState.IsKeyUp(key) && _previousKeyState.IsKeyDown(key));
+            return _currentKeyState.IsKeyUp(key) && _previousKeyState.IsKeyDown(key);
         }
     }
 }

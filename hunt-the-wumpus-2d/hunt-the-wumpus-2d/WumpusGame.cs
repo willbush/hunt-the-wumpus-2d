@@ -55,6 +55,8 @@ namespace hunt_the_wumpus_2d
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            _map.Update(gameTime);
+            _inputManager.Update();
 
             if (_inputManager.KeyPressed(Keys.Escape))
                 Exit();
@@ -63,9 +65,6 @@ namespace hunt_the_wumpus_2d
                 _messageHandler.AddMessageToWrite("Super bat attack blah blah blah here you go.");
             if (_inputManager.KeyPressed(Keys.B))
                 _messageHandler.AddMessageToWrite("Hi there.");
-
-            _map.Update(gameTime);
-            _inputManager.Update();
         }
 
         /// <summary>
