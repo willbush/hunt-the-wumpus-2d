@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="Entity.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="MessageHandler.cs" />
     <Compile Include="Room.cs" />
     <Compile Include="WumpusGame.cs" />
     <Compile Include="Program.cs" />
