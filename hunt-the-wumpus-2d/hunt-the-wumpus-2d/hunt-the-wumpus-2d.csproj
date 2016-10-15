@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Entity.cs" />
+    <Compile Include="InputManager.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MessageHandler.cs" />
     <Compile Include="Room.cs" />

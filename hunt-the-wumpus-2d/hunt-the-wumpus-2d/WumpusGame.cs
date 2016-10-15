@@ -10,12 +10,14 @@ namespace hunt_the_wumpus_2d
     public class WumpusGame : Game
     {
         private readonly GraphicsDeviceManager _graphics;
+        private readonly InputManager _inputManager;
         private Map _map;
-        private SpriteBatch _spriteBatch;
         private MessageHandler _messageHandler;
+        private SpriteBatch _spriteBatch;
 
         public WumpusGame()
         {
+            _inputManager = InputManager.Instance;
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
@@ -52,16 +54,18 @@ namespace hunt_the_wumpus_2d
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            base.Update(gameTime);
+
+            if (_inputManager.KeyPressed(Keys.Escape))
                 Exit();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            if (_inputManager.KeyPressed(Keys.A))
                 _messageHandler.AddMessageToWrite("Super bat attack blah blah blah here you go.");
-            if (Keyboard.GetState().IsKeyDown(Keys.B))
+            if (_inputManager.KeyPressed(Keys.B))
                 _messageHandler.AddMessageToWrite("Hi there.");
 
             _map.Update(gameTime);
-            base.Update(gameTime);
+            _inputManager.Update();
         }
 
         /// <summary>
