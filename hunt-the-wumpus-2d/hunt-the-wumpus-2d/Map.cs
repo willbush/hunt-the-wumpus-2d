@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace hunt_the_wumpus_2d
@@ -8,14 +7,11 @@ namespace hunt_the_wumpus_2d
     internal class Map : Entity
     {
         private const int NumOfRooms = 20;
-        private readonly ContentManager _content;
         private readonly List<Room> _rooms;
-        private Texture2D _rectangle;
 
 
-        public Map(ContentManager content)
+        public Map()
         {
-            _content = content;
             _rooms = new List<Room>(NumOfRooms);
         }
 
@@ -48,42 +44,10 @@ namespace hunt_the_wumpus_2d
 
         public void LoadContent(GraphicsDevice device)
         {
-            _rectangle = new Texture2D(device, 1, 1);
-            _rectangle.SetData(new[] {Color.White});
-            InitializeRooms();
         }
-
-        private void InitializeRooms()
-        {
-            const int rows = 4;
-            const int columns = 5;
-            int roomNumber = 1;
-            const int separationOffset = Room.SideLen + 20;
-            const int xOffset = 500;
-            const int yOffset = 200;
-
-            for (int col = 0; col < columns; ++col)
-            {
-                for (int row = 0; row < rows; ++row)
-                {
-                    _rooms.Add(new Room.Builder
-                    {
-                        RoomNumber = roomNumber,
-                        AdjacentRooms = RoomMap[roomNumber],
-                        Content = _content,
-                        Position = new Vector2(row * separationOffset + xOffset, col * separationOffset + yOffset),
-                        Texture = _rectangle
-                    }.Build());
-                    ++roomNumber;
-                }
-            }
-            _rooms.ForEach(r => r.LoadContent());
-        }
-
 
         public override void UnloadContent()
         {
-            _rectangle.Dispose();
         }
 
         public override void Update(GameTime time)

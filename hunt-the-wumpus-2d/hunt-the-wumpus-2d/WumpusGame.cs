@@ -1,6 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
+using MonoGame.Extended.Maps.Tiled;
+using MonoGame.Extended.Sprites;
+using MonoGame.Extended.ViewportAdapters;
 
 namespace hunt_the_wumpus_2d
 {
@@ -11,9 +16,12 @@ namespace hunt_the_wumpus_2d
     {
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
+        private Camera2D _camera;
         private Map _map;
         private MessageHandler _messageHandler;
         private SpriteBatch _spriteBatch;
+        private SpriteFont _font;
+        private TiledMap _tiledMap;
 
         public WumpusGame()
         {
@@ -24,8 +32,13 @@ namespace hunt_the_wumpus_2d
 
         protected override void Initialize()
         {
-            _graphics.PreferredBackBufferWidth = 1280;
-            _graphics.PreferredBackBufferHeight = 720;
+            const int weight = 570;
+            const int height = 520;
+            _map = new Map();
+            _camera = new Camera2D(new BoxingViewportAdapter(Window, GraphicsDevice, weight, height));
+            _graphics.PreferredBackBufferWidth = weight;
+            _graphics.PreferredBackBufferHeight = height;
+            _graphics.ApplyChanges();
             _graphics.ApplyChanges();
             base.Initialize();
         }
@@ -34,16 +47,20 @@ namespace hunt_the_wumpus_2d
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _map = new Map(Content);
             _messageHandler = new MessageHandler(Content);
             _map.LoadContent(GraphicsDevice);
             _messageHandler.LoadContent();
+
+            _tiledMap = Content.Load<TiledMap>("map");
+            _camera.LookAt(new Vector2(_tiledMap.WidthInPixels, _tiledMap.HeightInPixels));
+            _font = Content.Load<SpriteFont>("output");
         }
 
         protected override void UnloadContent()
         {
             _spriteBatch.Dispose();
             _map.UnloadContent();
+            _tiledMap.Dispose();
             Content.Dispose();
         }
 
@@ -54,7 +71,6 @@ namespace hunt_the_wumpus_2d
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
             _map.Update(gameTime);
             _inputManager.Update();
 
@@ -65,6 +81,8 @@ namespace hunt_the_wumpus_2d
                 _messageHandler.AddMessageToWrite("Super bat attack blah blah blah here you go.");
             if (_inputManager.KeyPressed(Keys.B))
                 _messageHandler.AddMessageToWrite("Hi there.");
+
+            base.Update(gameTime);
         }
 
         /// <summary>
@@ -73,8 +91,24 @@ namespace hunt_the_wumpus_2d
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
             _spriteBatch.Begin();
+            _tiledMap.Draw(_spriteBatch, _camera);
+
+            var rooms = _tiledMap.GetObjectGroup("entities").Objects
+                .Where(e => e.Type == "room");
+            var player = _tiledMap.GetObjectGroup("entities").Objects
+                .Single(e => e.Type == "player");
+
+            int gid = player.Gid ?? default(int);
+
+            var playerTexture = _tiledMap.GetTileRegion(gid);
+
+            var sprite = new Sprite(playerTexture) {Position = new Vector2(player.X, player.Y)};
+            _spriteBatch.Draw(sprite);
+
+            foreach (var room in rooms)
+                _spriteBatch.DrawString(_font, room.Name, new Vector2(room.X, room.Y - 15), Color.White);
+
             _map.Draw(_spriteBatch);
             _messageHandler.Draw(_spriteBatch);
             _spriteBatch.End();

@@ -23,7 +23,7 @@ namespace hunt_the_wumpus_2d
         public void AddMessageToWrite(string message, Color color = default(Color))
         {
             if (color == default(Color))
-                color = Color.Black;
+                color = Color.White;
 
             if (_messages.Count >= 20)
                 _messages.RemoveAt(0);
