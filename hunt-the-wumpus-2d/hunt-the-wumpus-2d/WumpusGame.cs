@@ -1,11 +1,8 @@
-﻿using System.Linq;
-using hunt_the_wumpus_2d.Entities;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Maps.Tiled;
-using MonoGame.Extended.Sprites;
 using MonoGame.Extended.ViewportAdapters;
 
 namespace hunt_the_wumpus_2d
@@ -17,13 +14,13 @@ namespace hunt_the_wumpus_2d
     {
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
+        private readonly bool _isCheatMode;
         private Camera2D _camera;
         private SpriteFont _font;
         private Map _map;
         private MessageBroker _messageBroker;
         private SpriteBatch _spriteBatch;
         private TiledMap _tiledMap;
-        private readonly bool _isCheatMode;
 
         public WumpusGame(bool isCheatMode)
         {
@@ -56,16 +53,6 @@ namespace hunt_the_wumpus_2d
             _map = new Map(_isCheatMode, _tiledMap);
 
 
-//            var rooms = _tiledMap.GetObjectGroup("entities").Objects
-//                .Where(e => e.Type == "room");
-//
-//            int gid = player.Gid ?? default(int);
-//
-//            var playerTexture = _tiledMap.GetTileRegion(gid);
-//
-//            var sprite = new Sprite(playerTexture) {Position = new Vector2(player.X, player.Y)};
-//            _spriteBatch.Draw(sprite);
-//
 //            foreach (var room in rooms)
 //            {
 //                _spriteBatch.DrawString(_font, room.Name, new Vector2(room.X - 25, room.Y - 40), Color.White);
@@ -109,6 +96,7 @@ namespace hunt_the_wumpus_2d
             GraphicsDevice.Clear(Color.Black);
             _spriteBatch.Begin();
             _tiledMap.Draw(_spriteBatch, _camera);
+            _map.Draw(_spriteBatch);
             _messageBroker.Messages.ForEach(m => _spriteBatch.DrawString(_font, m.Value, m.Position, m.Color));
 
             _spriteBatch.End();

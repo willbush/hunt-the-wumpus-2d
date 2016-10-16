@@ -1,22 +1,17 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.TextureAtlases;
 
 namespace hunt_the_wumpus_2d.Entities
 {
     public class BottomlessPit : DeadlyHazard
     {
-        public BottomlessPit(int roomNumber, TextureRegion2D texture) : base(roomNumber, texture)
+        public BottomlessPit(int roomNumber, TextureRegion2D texture, Vector2 position)
+            : base(roomNumber, texture, position)
         {
         }
 
         public override void Update(GameTime time)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Draw(SpriteBatch batch)
         {
             throw new NotImplementedException();
         }

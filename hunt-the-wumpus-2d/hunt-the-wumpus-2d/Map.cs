@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using hunt_the_wumpus_2d.Entities;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Maps.Tiled;
 using MonoGame.Extended.TextureAtlases;
 
@@ -13,9 +15,39 @@ namespace hunt_the_wumpus_2d
         public const int NumOfRooms = 20;
         private static readonly MessageBroker MessageBroker = MessageBroker.Instance;
         private readonly List<DeadlyHazard> _deadlyHazards;
+        private readonly List<Entity> _entites;
         private readonly List<Hazard> _hazards;
         private readonly HashSet<int> _roomsWithStaticHazards;
+        private readonly Dictionary<int, Vector2> _roomToPosition;
         private readonly List<SuperBats> _superBats;
+
+        public Map(bool isCheatMode, TiledMap tiledMap)
+        {
+            IsCheatMode = isCheatMode;
+            var occupiedRooms = new HashSet<int>();
+            _hazards = new List<Hazard> {Wumpus};
+            _deadlyHazards = new List<DeadlyHazard>();
+            _roomsWithStaticHazards = new HashSet<int>();
+            _superBats = new List<SuperBats>();
+            _entites = new List<Entity>();
+            _roomToPosition = CreateRoomToPosition(tiledMap);
+
+            Player = CreatePlayer(tiledMap, occupiedRooms);
+            _entites.Add(Player);
+
+            Wumpus = CreateWumpus(tiledMap, occupiedRooms);
+            _entites.Add(Wumpus);
+
+            // initialize super bats
+            InitializeSuperBats(tiledMap, occupiedRooms);
+
+            // initialize bottomless pits
+            InitializeBottomlessPits(tiledMap, occupiedRooms);
+
+            if (IsCheatMode)
+                PrintHazards();
+        }
+
         public bool IsCheatMode { get; }
         public Player Player { get; }
         private Wumpus Wumpus { get; }
@@ -47,35 +79,70 @@ namespace hunt_the_wumpus_2d
             {20, new HashSet<int> {13, 16, 19}}
         };
 
-        public Map(bool isCheatMode, TiledMap tiledMap)
+        private void InitializeBottomlessPits(TiledMap tiledMap, ISet<int> occupiedRooms)
         {
-            IsCheatMode = isCheatMode;
-            var occupiedRooms = new HashSet<int>();
-
-            Player = new Player(GetRandomAvailableRoom(occupiedRooms), GetTexture(tiledMap, "player"));
-            Wumpus = new Wumpus(GetRandomAvailableRoom(occupiedRooms), GetTexture(tiledMap, "wumpus"));
-
             var pitTexture = GetTexture(tiledMap, "pit");
-            var bottomlessPit1 = new BottomlessPit(GetRandomAvailableRoom(occupiedRooms), pitTexture);
-            var bottomlessPit2 = new BottomlessPit(GetRandomAvailableRoom(occupiedRooms), pitTexture);
+            int pit1RoomNum = GetRandomAvailableRoom(occupiedRooms);
+            var pit1 = new BottomlessPit(GetRandomAvailableRoom(occupiedRooms), pitTexture, _roomToPosition[pit1RoomNum]);
+            int pit2RoomNum = GetRandomAvailableRoom(occupiedRooms);
+            var pit2 = new BottomlessPit(GetRandomAvailableRoom(occupiedRooms), pitTexture, _roomToPosition[pit2RoomNum]);
+
+            _hazards.Add(pit1);
+            _hazards.Add(pit2);
+            _deadlyHazards.Add(pit1);
+            _deadlyHazards.Add(pit2);
+            _roomsWithStaticHazards.Add(pit1.RoomNumber);
+            _roomsWithStaticHazards.Add(pit2.RoomNumber);
+            _entites.Add(pit1);
+            _entites.Add(pit2);
+        }
+
+        private void InitializeSuperBats(TiledMap tiledMap, ISet<int> occupiedRooms)
+        {
             var batTexture = GetTexture(tiledMap, "bat");
-            var superbats1 = new SuperBats(GetRandomAvailableRoom(occupiedRooms), batTexture);
-            var superbats2 = new SuperBats(GetRandomAvailableRoom(occupiedRooms), batTexture);
+            int bat1RoomNum = GetRandomAvailableRoom(occupiedRooms);
+            var superbats1 = new SuperBats(GetRandomAvailableRoom(occupiedRooms), batTexture,
+                _roomToPosition[bat1RoomNum]);
+            int bat2RoomNum = GetRandomAvailableRoom(occupiedRooms);
+            var superbats2 = new SuperBats(GetRandomAvailableRoom(occupiedRooms), batTexture,
+                _roomToPosition[bat2RoomNum]);
 
-            _hazards = new List<Hazard> {Wumpus, bottomlessPit1, bottomlessPit2, superbats1, superbats2};
-            _deadlyHazards = new List<DeadlyHazard> {Wumpus, bottomlessPit1, bottomlessPit2};
-            _superBats = new List<SuperBats> {superbats1, superbats2};
+            _superBats.Add(superbats1);
+            _superBats.Add(superbats2);
+            _hazards.Add(superbats1);
+            _hazards.Add(superbats2);
+            _roomsWithStaticHazards.Add(superbats1.RoomNumber);
+            _roomsWithStaticHazards.Add(superbats2.RoomNumber);
+            _entites.Add(superbats1);
+            _entites.Add(superbats2);
+        }
 
-            _roomsWithStaticHazards = new HashSet<int>
+        private Wumpus CreateWumpus(TiledMap tiledMap, ISet<int> occupiedRooms)
+        {
+            int wumpusRoomNum = GetRandomAvailableRoom(occupiedRooms);
+            return new Wumpus(GetRandomAvailableRoom(occupiedRooms), GetTexture(tiledMap, "wumpus"),
+                _roomToPosition[wumpusRoomNum]);
+        }
+
+        private Player CreatePlayer(TiledMap tiledMap, ISet<int> occupiedRooms)
+        {
+            int playerRoomNum = GetRandomAvailableRoom(occupiedRooms);
+            return new Player(playerRoomNum, GetTexture(tiledMap, "player"),
+                _roomToPosition[playerRoomNum]);
+        }
+
+        private Dictionary<int, Vector2> CreateRoomToPosition(TiledMap tiledMap)
+        {
+            var roomToPosition = new Dictionary<int, Vector2>();
+            var rooms = tiledMap.GetObjectGroup("entities").Objects
+                .Where(e => e.Type == "room");
+
+            foreach (var room in rooms)
             {
-                superbats1.RoomNumber,
-                superbats2.RoomNumber,
-                bottomlessPit1.RoomNumber,
-                bottomlessPit2.RoomNumber
-            };
-
-            if (IsCheatMode)
-                PrintHazards();
+                int key = int.Parse(room.Name);
+                roomToPosition.Add(key, new Vector2(room.X, room.Y));
+            }
+            return roomToPosition;
         }
 
         private static TextureRegion2D GetTexture(TiledMap tiledMap, string textureType)
@@ -103,7 +170,7 @@ namespace hunt_the_wumpus_2d
         /// </summary>
         private static int GetRandomAvailableRoom(ISet<int> occupiedRooms)
         {
-            int[] availableRooms = Enumerable.Range(1, NumOfRooms).Where(r => !occupiedRooms.Contains(r)).ToArray();
+            var availableRooms = Enumerable.Range(1, NumOfRooms).Where(r => !occupiedRooms.Contains(r)).ToArray();
             if (availableRooms.Length == 0)
                 throw new InvalidOperationException("All rooms are already occupied.");
 
@@ -126,7 +193,7 @@ namespace hunt_the_wumpus_2d
             MessageBroker.AddMessageToWrite("");
             Wumpus.Update(this);
 
-            HashSet<int> roomsAdjacentToPlayer = Rooms[Player.RoomNumber];
+            var roomsAdjacentToPlayer = Rooms[Player.RoomNumber];
             _hazards.ForEach(
                 h =>
                 {
@@ -141,7 +208,7 @@ namespace hunt_the_wumpus_2d
         /// </summary>
         public int GetSafeRoomNextTo(int roomNumber)
         {
-            int[] safeAdjacentRooms = Rooms[roomNumber].Except(_roomsWithStaticHazards).ToArray();
+            var safeAdjacentRooms = Rooms[roomNumber].Except(_roomsWithStaticHazards).ToArray();
             return safeAdjacentRooms.ElementAt(new Random().Next(safeAdjacentRooms.Length));
         }
 
@@ -205,6 +272,11 @@ namespace hunt_the_wumpus_2d
         {
             MessageBroker.AddMessageToWrite("");
             _hazards.ForEach(h => h.PrintLocation());
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            _entites.ForEach(e => e.Draw(spriteBatch));
         }
     }
 }

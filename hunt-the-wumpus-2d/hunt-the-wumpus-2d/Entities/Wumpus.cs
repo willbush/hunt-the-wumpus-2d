@@ -9,7 +9,8 @@ namespace hunt_the_wumpus_2d.Entities
     {
         private readonly int _initialRoomNumber;
 
-        public Wumpus(int roomNumber, TextureRegion2D texture) : base(roomNumber, texture)
+        public Wumpus(int roomNumber, TextureRegion2D texture, Vector2 position)
+            : base(roomNumber, texture, position)
         {
             _initialRoomNumber = roomNumber;
         }
@@ -51,11 +52,6 @@ namespace hunt_the_wumpus_2d.Entities
         }
 
         public override void Update(GameTime time)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Draw(SpriteBatch batch)
         {
             throw new NotImplementedException();
         }
