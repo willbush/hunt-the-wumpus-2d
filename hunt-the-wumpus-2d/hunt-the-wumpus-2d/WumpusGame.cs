@@ -21,23 +21,30 @@ namespace hunt_the_wumpus_2d
         private MessageBroker _messageBroker;
         private SpriteBatch _spriteBatch;
         private TiledMap _tiledMap;
+        private BoxingViewportAdapter _viewportAdapter;
 
         public WumpusGame(bool isCheatMode)
         {
             _isCheatMode = isCheatMode;
             _inputManager = InputManager.Instance;
             _graphics = new GraphicsDeviceManager(this);
+
             Content.RootDirectory = "Content";
+            Window.AllowUserResizing = true;
+            Window.Position = Point.Zero;
+            IsMouseVisible = true;
         }
 
         protected override void Initialize()
         {
             const int weight = 900;
             const int height = 520;
-            _camera = new Camera2D(new BoxingViewportAdapter(Window, GraphicsDevice, weight, height));
+            _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, weight, height);
+            _camera = new Camera2D(_viewportAdapter);
             _graphics.PreferredBackBufferWidth = weight;
             _graphics.PreferredBackBufferHeight = height;
             _graphics.ApplyChanges();
+
             base.Initialize();
         }
 
@@ -87,7 +94,7 @@ namespace hunt_the_wumpus_2d
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: _viewportAdapter.GetScaleMatrix());
             _tiledMap.Draw(_spriteBatch, _camera);
             _map.Draw(_spriteBatch);
             _messageBroker.Messages.ForEach(m => _spriteBatch.DrawString(_font, m.Value, m.Position, m.Color));

@@ -16,7 +16,7 @@ namespace hunt_the_wumpus_2d
         public const int NumOfRooms = 20;
         private static readonly MessageBroker MessageBroker = MessageBroker.Instance;
         private readonly List<DeadlyHazard> _deadlyHazards;
-        private readonly List<Entity> _entites;
+        private readonly List<Entity> _entities;
         private readonly List<Hazard> _hazards;
         private readonly HashSet<int> _roomsWithStaticHazards;
         private readonly Dictionary<int, Vector2> _roomToPosition;
@@ -31,14 +31,14 @@ namespace hunt_the_wumpus_2d
             _deadlyHazards = new List<DeadlyHazard>();
             _roomsWithStaticHazards = new HashSet<int>();
             _superBats = new List<SuperBats>();
-            _entites = new List<Entity>();
+            _entities = new List<Entity>();
             _roomToPosition = CreateRoomToPosition(tiledMap);
 
             Player = CreatePlayer(tiledMap, occupiedRooms);
-            _entites.Add(Player);
+            _entities.Add(Player);
 
             Wumpus = CreateWumpus(tiledMap, occupiedRooms);
-            _entites.Add(Wumpus);
+            _entities.Add(Wumpus);
 
             // initialize super bats
             InitializeSuperBats(tiledMap, occupiedRooms);
@@ -95,8 +95,8 @@ namespace hunt_the_wumpus_2d
             _deadlyHazards.Add(pit2);
             _roomsWithStaticHazards.Add(pit1.RoomNumber);
             _roomsWithStaticHazards.Add(pit2.RoomNumber);
-            _entites.Add(pit1);
-            _entites.Add(pit2);
+            _entities.Add(pit1);
+            _entities.Add(pit2);
         }
 
         private void InitializeSuperBats(TiledMap tiledMap, ISet<int> occupiedRooms)
@@ -115,8 +115,8 @@ namespace hunt_the_wumpus_2d
             _hazards.Add(superbats2);
             _roomsWithStaticHazards.Add(superbats1.RoomNumber);
             _roomsWithStaticHazards.Add(superbats2.RoomNumber);
-            _entites.Add(superbats1);
-            _entites.Add(superbats2);
+            _entities.Add(superbats1);
+            _entities.Add(superbats2);
         }
 
         private Wumpus CreateWumpus(TiledMap tiledMap, ISet<int> occupiedRooms)
@@ -278,7 +278,7 @@ namespace hunt_the_wumpus_2d
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            _entites.ForEach(e => e.Draw(spriteBatch));
+            _entities.ForEach(e => e.Draw(spriteBatch));
             var adjacentRooms = Rooms[Player.RoomNumber];
             foreach (int roomNum in adjacentRooms)
             {
