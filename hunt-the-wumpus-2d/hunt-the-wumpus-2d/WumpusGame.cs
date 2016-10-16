@@ -50,14 +50,7 @@ namespace hunt_the_wumpus_2d
 
             _tiledMap = Content.Load<TiledMap>("map");
             _camera.LookAt(new Vector2(_tiledMap.WidthInPixels, _tiledMap.HeightInPixels));
-            _map = new Map(_isCheatMode, _tiledMap);
-
-
-//            foreach (var room in rooms)
-//            {
-//                _spriteBatch.DrawString(_font, room.Name, new Vector2(room.X - 25, room.Y - 40), Color.White);
-//                _spriteBatch.Draw(new Sprite(playerTexture) {Position = new Vector2(room.X, room.Y)});
-//            }
+            _map = new Map(_isCheatMode, _tiledMap, _font);
         }
 
         protected override void UnloadContent()

@@ -12,6 +12,7 @@ namespace hunt_the_wumpus_2d
 {
     public class Map
     {
+        private readonly SpriteFont _font;
         public const int NumOfRooms = 20;
         private static readonly MessageBroker MessageBroker = MessageBroker.Instance;
         private readonly List<DeadlyHazard> _deadlyHazards;
@@ -21,8 +22,9 @@ namespace hunt_the_wumpus_2d
         private readonly Dictionary<int, Vector2> _roomToPosition;
         private readonly List<SuperBats> _superBats;
 
-        public Map(bool isCheatMode, TiledMap tiledMap)
+        public Map(bool isCheatMode, TiledMap tiledMap, SpriteFont font)
         {
+            _font = font;
             IsCheatMode = isCheatMode;
             var occupiedRooms = new HashSet<int>();
             _hazards = new List<Hazard> {Wumpus};
@@ -277,6 +279,15 @@ namespace hunt_the_wumpus_2d
         public void Draw(SpriteBatch spriteBatch)
         {
             _entites.ForEach(e => e.Draw(spriteBatch));
+            var adjacentRooms = Rooms[Player.RoomNumber];
+            foreach (int roomNum in adjacentRooms)
+            {
+                var position = _roomToPosition[roomNum];
+                const int xOffset = 25;
+                const int yOffset = 40;
+                var v = new Vector2(position.X - xOffset, position.Y - yOffset);
+                spriteBatch.DrawString(_font, roomNum.ToString(), v, Color.White);
+            }
         }
     }
 }
