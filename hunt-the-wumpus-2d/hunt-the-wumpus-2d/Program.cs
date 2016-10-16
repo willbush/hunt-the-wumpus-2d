@@ -8,9 +8,11 @@ namespace hunt_the_wumpus_2d
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main()
+        private static void Main(string[] arguments)
         {
-            using (var game = new WumpusGame())
+            bool isCheatMode = arguments.Length > 0 && arguments[0].ToLower() == "cheat";
+
+            using (var game = new WumpusGame(isCheatMode))
                 game.Run();
         }
     }

@@ -1,26 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace hunt_the_wumpus_2d
 {
-    internal class MessageHandler : Entity
+    internal class MessageHandler
     {
         private const int MessageLimit = 25;
         private const int MessageOffset = 20;
         private const int XPosition = 570;
         private const int YPosition = 500;
+        private static MessageHandler _instance;
         private readonly ContentManager _content;
         private readonly List<Message> _messages;
         private SpriteFont _font;
 
-        public MessageHandler(ContentManager content)
+        private MessageHandler(ContentManager content)
         {
             _content = content;
             _messages = new List<Message>();
         }
+
+        public static MessageHandler Instance(ContentManager content)
+            => _instance ?? (_instance = new MessageHandler(content));
 
         public void AddMessageToWrite(string message, Color color = default(Color))
         {
@@ -35,21 +38,12 @@ namespace hunt_the_wumpus_2d
             _messages.Add(new Message(message, new Vector2(XPosition, YPosition), color));
         }
 
-        public override void LoadContent()
+        public void LoadContent()
         {
             _font = _content.Load<SpriteFont>("output");
         }
 
-        public override void UnloadContent()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Update(GameTime time)
-        {
-        }
-
-        public override void Draw(SpriteBatch batch)
+        public void Draw(SpriteBatch batch)
         {
             _messages.ForEach(m => batch.DrawString(_font, m.Value, m.Position, m.Color));
         }

@@ -17,14 +17,16 @@ namespace hunt_the_wumpus_2d
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
         private Camera2D _camera;
+        private SpriteFont _font;
         private Map _map;
         private MessageHandler _messageHandler;
         private SpriteBatch _spriteBatch;
-        private SpriteFont _font;
         private TiledMap _tiledMap;
+        private readonly bool _isCheatMode;
 
-        public WumpusGame()
+        public WumpusGame(bool isCheatMode)
         {
+            _isCheatMode = isCheatMode;
             _inputManager = InputManager.Instance;
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -34,7 +36,7 @@ namespace hunt_the_wumpus_2d
         {
             const int weight = 900;
             const int height = 520;
-            _map = new Map();
+            _map = new Map(_isCheatMode);
             _camera = new Camera2D(new BoxingViewportAdapter(Window, GraphicsDevice, weight, height));
             _graphics.PreferredBackBufferWidth = weight;
             _graphics.PreferredBackBufferHeight = height;
@@ -47,8 +49,7 @@ namespace hunt_the_wumpus_2d
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _messageHandler = new MessageHandler(Content);
-            _map.LoadContent(GraphicsDevice);
+            _messageHandler = MessageHandler.Instance(Content);
             _messageHandler.LoadContent();
 
             _tiledMap = Content.Load<TiledMap>("map");
@@ -59,7 +60,6 @@ namespace hunt_the_wumpus_2d
         protected override void UnloadContent()
         {
             _spriteBatch.Dispose();
-            _map.UnloadContent();
             _tiledMap.Dispose();
             Content.Dispose();
         }
@@ -71,7 +71,6 @@ namespace hunt_the_wumpus_2d
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            _map.Update(gameTime);
             _inputManager.Update();
 
             if (_inputManager.KeyPressed(Keys.Escape))
@@ -113,7 +112,6 @@ namespace hunt_the_wumpus_2d
                 _spriteBatch.Draw(new Sprite(playerTexture) {Position = new Vector2(room.X, room.Y)});
             }
 
-            _map.Draw(_spriteBatch);
             _messageHandler.Draw(_spriteBatch);
             _spriteBatch.End();
             base.Draw(gameTime);
