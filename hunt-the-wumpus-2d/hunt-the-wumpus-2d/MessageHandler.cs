@@ -8,7 +8,8 @@ namespace hunt_the_wumpus_2d
 {
     internal class MessageHandler : Entity
     {
-        private const int XPosition = 800;
+        private const int MessageLimit = 25;
+        private const int XPosition = 570;
         private const int YPosition = 500;
         private readonly ContentManager _content;
         private readonly List<Message> _messages;
@@ -25,7 +26,7 @@ namespace hunt_the_wumpus_2d
             if (color == default(Color))
                 color = Color.White;
 
-            if (_messages.Count >= 20)
+            if (_messages.Count >= MessageLimit)
                 _messages.RemoveAt(0);
 
             _messages.ForEach(m => m.Position.Y -= 20);

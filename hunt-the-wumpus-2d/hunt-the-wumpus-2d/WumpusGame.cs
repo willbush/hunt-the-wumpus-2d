@@ -32,7 +32,7 @@ namespace hunt_the_wumpus_2d
 
         protected override void Initialize()
         {
-            const int weight = 570;
+            const int weight = 900;
             const int height = 520;
             _map = new Map();
             _camera = new Camera2D(new BoxingViewportAdapter(Window, GraphicsDevice, weight, height));
@@ -91,6 +91,7 @@ namespace hunt_the_wumpus_2d
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.Clear(Color.Black);
             _spriteBatch.Begin();
             _tiledMap.Draw(_spriteBatch, _camera);
 
