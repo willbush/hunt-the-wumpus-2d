@@ -98,32 +98,28 @@
  </layer>
  <objectgroup name="entities">
   <object id="5" name="player" type="player" gid="2378" x="8.375" y="23.25" width="16" height="16"/>
-  <object id="7" name="2" type="room" x="498" y="192.5" width="45" height="47"/>
-  <object id="8" name="3" type="room" x="432" y="450" width="46.5" height="45.5"/>
-  <object id="9" name="1" type="room" x="256" y="15.5" width="48" height="48"/>
-  <object id="11" name="4" type="room" x="80.5" y="449" width="48" height="48.5"/>
-  <object id="12" name="5" type="room" x="16" y="192" width="46.5" height="47"/>
-  <object id="15" name="8" type="room" x="256.5" y="94.5" width="46" height="49"/>
-  <object id="16" name="6" type="room" x="96.5" y="193" width="47" height="47.5"/>
-  <object id="17" name="7" type="room" x="144" y="95" width="47.5" height="49"/>
-  <object id="18" name="9" type="room" x="368.5" y="96.5" width="45.5" height="47.5"/>
-  <object id="19" name="10" type="room" x="415.5" y="192" width="47.5" height="48.5"/>
-  <object id="20" name="11" type="room" x="369.5" y="306" width="45" height="45"/>
-  <object id="21" name="12" type="room" x="367" y="385" width="49" height="47"/>
-  <object id="22" name="13" type="room" x="256" y="384.5" width="46.5" height="48"/>
-  <object id="23" name="14" type="room" x="144.5" y="386" width="47.5" height="48"/>
-  <object id="24" name="15" type="room" x="144.5" y="304" width="48" height="48"/>
-  <object id="26" name="16" type="room" x="207.5" y="240.5" width="48.5" height="48"/>
-  <object id="27" name="17" type="room" x="209.5" y="161.5" width="46" height="47"/>
-  <object id="28" name="18" type="room" x="304" y="160" width="48" height="49"/>
-  <object id="29" name="19" type="room" x="306" y="241" width="45.5" height="47"/>
-  <object id="31" name="20" type="room" x="255.5" y="304" width="49" height="48"/>
-  <object id="32" name="1" type="bat" gid="2610" x="126" y="25" width="16" height="16"/>
-  <object id="33" name="2" type="bat" gid="2610" x="144" y="25.5" width="16" height="16"/>
-  <object id="34" name="3" type="bat" gid="2610" x="163" y="25.5" width="16" height="16"/>
-  <object id="35" name="1" type="pit" gid="2057" x="184" y="23" width="16" height="16"/>
-  <object id="36" name="2" type="pit" gid="2057" x="202.5" y="23" width="16" height="16"/>
-  <object id="37" name="3" type="pit" gid="2057" x="222.5" y="23.5" width="16" height="16"/>
+  <object id="7" name="2" type="room" x="520.5" y="216" width="22.5" height="23.5"/>
+  <object id="8" name="3" type="room" x="456.5" y="473" width="22" height="22.5"/>
+  <object id="9" name="1" type="room" x="280.5" y="40.5" width="23.5" height="23"/>
+  <object id="11" name="4" type="room" x="104" y="472" width="24.5" height="25.5"/>
+  <object id="12" name="5" type="room" x="40.5" y="217" width="22" height="22"/>
+  <object id="15" name="8" type="room" x="280" y="119.5" width="22.5" height="24"/>
+  <object id="16" name="6" type="room" x="121.5" y="216" width="22" height="24.5"/>
+  <object id="17" name="7" type="room" x="169.5" y="120" width="22" height="24"/>
+  <object id="18" name="9" type="room" x="392" y="119.5" width="22" height="24.5"/>
+  <object id="19" name="10" type="room" x="440.5" y="216" width="22.5" height="24.5"/>
+  <object id="20" name="11" type="room" x="392" y="328.5" width="22.5" height="22.5"/>
+  <object id="21" name="12" type="room" x="393.5" y="409.5" width="22.5" height="22.5"/>
+  <object id="22" name="13" type="room" x="281.5" y="408.5" width="21" height="24"/>
+  <object id="23" name="14" type="room" x="168" y="408.5" width="24" height="25.5"/>
+  <object id="24" name="15" type="room" x="169" y="328.5" width="23.5" height="23.5"/>
+  <object id="26" name="16" type="room" x="233" y="264.5" width="22" height="24"/>
+  <object id="27" name="17" type="room" x="233.5" y="185" width="22" height="23.5"/>
+  <object id="28" name="18" type="room" x="329.5" y="185" width="22.5" height="24"/>
+  <object id="29" name="19" type="room" x="327.5" y="263" width="23.5" height="25.5"/>
+  <object id="31" name="20" type="room" x="281" y="328" width="23.5" height="24"/>
+  <object id="32" name="bat" type="bat" gid="2610" x="53.5" y="26" width="16" height="16"/>
+  <object id="35" name="pit" type="pit" gid="2057" x="80.5" y="22.5" width="16" height="16"/>
   <object id="40" name="wumpus" type="wumpus" gid="2644" x="30.5" y="23" width="16" height="16"/>
  </objectgroup>
 </map>

@@ -98,7 +98,7 @@ namespace hunt_the_wumpus_2d
             var rooms = _tiledMap.GetObjectGroup("entities").Objects
                 .Where(e => e.Type == "room");
             var player = _tiledMap.GetObjectGroup("entities").Objects
-                .Single(e => e.Type == "player");
+                .Single(e => e.Type == "pit");
 
             int gid = player.Gid ?? default(int);
 
@@ -108,7 +108,10 @@ namespace hunt_the_wumpus_2d
             _spriteBatch.Draw(sprite);
 
             foreach (var room in rooms)
-                _spriteBatch.DrawString(_font, room.Name, new Vector2(room.X, room.Y - 15), Color.White);
+            {
+                _spriteBatch.DrawString(_font, room.Name, new Vector2(room.X - 25, room.Y - 40), Color.White);
+                _spriteBatch.Draw(new Sprite(playerTexture) {Position = new Vector2(room.X, room.Y)});
+            }
 
             _map.Draw(_spriteBatch);
             _messageHandler.Draw(_spriteBatch);
