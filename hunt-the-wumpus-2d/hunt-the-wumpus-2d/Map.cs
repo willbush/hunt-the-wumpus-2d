@@ -14,7 +14,7 @@ namespace hunt_the_wumpus_2d
     {
         private readonly SpriteFont _font;
         public const int NumOfRooms = 20;
-        private static readonly MessageBroker MessageBroker = MessageBroker.Instance;
+        private static readonly Logger Logger = Logger.Instance;
         private readonly List<DeadlyHazard> _deadlyHazards;
         private readonly List<Entity> _entities;
         private readonly List<Hazard> _hazards;
@@ -192,17 +192,17 @@ namespace hunt_the_wumpus_2d
         /// </summary>
         public void Update()
         {
-            MessageBroker.AddMessageToWrite("");
-            Wumpus.Update(this);
-
-            var roomsAdjacentToPlayer = Rooms[Player.RoomNumber];
-            _hazards.ForEach(
-                h =>
-                {
-                    if (roomsAdjacentToPlayer.Contains(h.RoomNumber))
-                        h.PrintHazardWarning();
-                });
-            Player.PrintLocation();
+//            Logger.AddMessageToWrite("");
+//            Wumpus.Update(this);
+//
+//            var roomsAdjacentToPlayer = Rooms[Player.RoomNumber];
+//            _hazards.ForEach(
+//                h =>
+//                {
+//                    if (roomsAdjacentToPlayer.Contains(h.RoomNumber))
+//                        h.PrintHazardWarning();
+//                });
+//            Player.PrintLocation();
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace hunt_the_wumpus_2d
             foreach (int room in Rooms[roomNum])
                 sb.Append(room + " ");
 
-            MessageBroker.AddMessageToWrite($"Tunnels lead to {sb}");
+            Logger.AddMessageToWrite($"Tunnels lead to {sb}");
         }
 
         public static bool IsAdjacent(int currentRoom, int adjacentRoom)
@@ -272,7 +272,7 @@ namespace hunt_the_wumpus_2d
 
         private void PrintHazards()
         {
-            MessageBroker.AddMessageToWrite("");
+            Logger.AddMessageToWrite("");
             _hazards.ForEach(h => h.PrintLocation());
         }
 
@@ -283,10 +283,10 @@ namespace hunt_the_wumpus_2d
             foreach (int roomNum in adjacentRooms)
             {
                 var position = _roomToPosition[roomNum];
-                const int xOffset = 25;
+                const int xOffset = 8;
                 const int yOffset = 40;
                 var v = new Vector2(position.X - xOffset, position.Y - yOffset);
-                spriteBatch.DrawString(_font, roomNum.ToString(), v, Color.White);
+                spriteBatch.DrawString(_font, roomNum.ToString(), v, Color.Red);
             }
         }
     }

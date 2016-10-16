@@ -1,39 +1,117 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using System;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.InputListeners;
 
 namespace hunt_the_wumpus_2d
 {
     public class InputManager
     {
         private static InputManager _instance;
-        private KeyboardState _currentKeyState;
-        private KeyboardState _previousKeyState;
+        private bool _isInitial;
+        private TimeSpan _lastPressTime;
+        private string _typedString = string.Empty;
+        private Keys _previousKey;
+        private KeyboardState _previousState;
+
+        public InputManager() : this(new KeyboardListenerSettings())
+        {
+        }
+
+        public InputManager(KeyboardListenerSettings settings)
+        {
+            InitialDelay = settings.InitialDelayMilliseconds;
+            RepeatDelay = settings.RepeatDelayMilliseconds;
+        }
 
         public static InputManager Instance => _instance ?? (_instance = new InputManager());
 
-        public void Update()
+        public int InitialDelay { get; }
+        public int RepeatDelay { get; }
+
+        public event EventHandler<KeyboardEventArgs> KeyTyped;
+        public event EventHandler<KeyboardEventArgs> KeyPressed;
+        public event EventHandler<KeyboardEventArgs> KeyReleased;
+
+        public void Update(GameTime gameTime)
         {
-            _previousKeyState = _currentKeyState;
-            _currentKeyState = Keyboard.GetState();
+            var currentState = Keyboard.GetState();
+
+            RaisePressedEvents(gameTime, currentState);
+            RaiseReleasedEvents(currentState);
+            RaiseRepeatEvents(gameTime, currentState);
+
+            _previousState = currentState;
         }
 
-        /// <summary>
-        ///     Uses previous and current key state to determine the given key was released.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns>true if the given key have a current key state is down and the previous state was up.</returns>
-        public bool KeyPressed(Keys key)
+        private void RaisePressedEvents(GameTime gameTime, KeyboardState currentState)
         {
-            return _currentKeyState.IsKeyDown(key) && _previousKeyState.IsKeyUp(key);
+            if (currentState.IsKeyDown(Keys.LeftAlt) || currentState.IsKeyDown(Keys.RightAlt)) return;
+
+            var pressedKeys = Enum.GetValues(typeof(Keys))
+                .Cast<Keys>()
+                .Where(key => currentState.IsKeyDown(key) && _previousState.IsKeyUp(key));
+
+            foreach (var key in pressedKeys)
+            {
+                var args = new KeyboardEventArgs(key, currentState);
+
+                KeyPressed?.Invoke(this, args);
+
+                if (args.Character.HasValue)
+                    KeyTyped?.Invoke(this, args);
+
+                _previousKey = key;
+                _lastPressTime = gameTime.TotalGameTime;
+                _isInitial = true;
+            }
         }
 
-        /// <summary>
-        ///     Uses previous and current key state to determine the given key was pressed.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns>true if the given key have a current key state is up and the previous state was down.</returns>
-        public bool KeyReleased(Keys key)
+        private void RaiseReleasedEvents(KeyboardState currentState)
         {
-            return _currentKeyState.IsKeyUp(key) && _previousKeyState.IsKeyDown(key);
+            var releasedKeys = Enum.GetValues(typeof(Keys))
+                .Cast<Keys>()
+                .Where(key => currentState.IsKeyUp(key) && _previousState.IsKeyDown(key));
+
+            foreach (var key in releasedKeys)
+                KeyReleased?.Invoke(this, new KeyboardEventArgs(key, currentState));
+        }
+
+        private void RaiseRepeatEvents(GameTime gameTime, KeyboardState currentState)
+        {
+            double elapsedTime = (gameTime.TotalGameTime - _lastPressTime).TotalMilliseconds;
+
+            if (currentState.IsKeyDown(_previousKey) &&
+                ((_isInitial && elapsedTime > InitialDelay) || (!_isInitial && elapsedTime > RepeatDelay)))
+            {
+                var args = new KeyboardEventArgs(_previousKey, currentState);
+
+                if (args.Character.HasValue)
+                    KeyTyped?.Invoke(this, args);
+
+                _lastPressTime = gameTime.TotalGameTime;
+                _isInitial = false;
+            }
+        }
+
+        public void AddKeyboardTypedAction(Action<string> action)
+        {
+            KeyTyped += (sender, args) =>
+            {
+                if (args.Key == Keys.Back && _typedString.Length > 0)
+                {
+                    _typedString = _typedString.Substring(0, _typedString.Length - 1);
+                }
+                else if (args.Key == Keys.Enter)
+                {
+                    action(_typedString);
+                }
+                else
+                {
+                    _typedString += args.Character?.ToString() ?? "";
+                }
+            };
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.TextureAtlases;
 
 namespace hunt_the_wumpus_2d.Entities
@@ -10,6 +9,7 @@ namespace hunt_the_wumpus_2d.Entities
     public class Player : Entity
     {
         private const int MaxNumberOfArrows = 5;
+        private static readonly Logger Log = Logger.Instance;
         private readonly int _initialRoomNum;
 
         public Player(int roomNumber, TextureRegion2D texture, Vector2 position) : base(roomNumber, texture, position)
@@ -49,54 +49,67 @@ namespace hunt_the_wumpus_2d.Entities
         /// </summary>
         /// <param name="wumpusRoomNumber">current wumpus room number</param>
         /// <returns>game end state result</returns>
-        public EndState ShootArrow(int wumpusRoomNumber)
+        public void ShootArrow(int wumpusRoomNumber)
         {
-            EndState endState;
-            int numOfRooms = GetNumRoomsToTraverse();
+            PromptForNumRoomsToTraverse(wumpusRoomNumber);
+        }
 
-            if (numOfRooms > 0)
+        private void Shoot(int wumpusRoomNumber, int numOfRoomsToTraverse)
+        {
+            if (numOfRoomsToTraverse > 0)
             {
                 CrookedArrowCount = CrookedArrowCount - 1;
-                endState = ShootArrow(GetRoomsToTraverse(numOfRooms), wumpusRoomNumber);
+                ShootArrow(GetRoomsToTraverse(numOfRoomsToTraverse), wumpusRoomNumber);
             }
             else
             {
-                Console.WriteLine("OK, suit yourself...");
-                endState = new EndState();
+                Log.AddMessageToWrite("OK, suit yourself...");
             }
-            return endState;
         }
 
         //Requests from the player how many rooms they want the arrow they're shooting to traverse.
-        private static int GetNumRoomsToTraverse()
+        private void PromptForNumRoomsToTraverse(int wumpusRoomNumber)
         {
             const int lowerBound = 0;
             const int upperBound = 5;
-            int numOfRooms;
-            string response;
 
-            do
+            Log.AddMessageToWrite(Message.NumOfRoomsToShootPrompt);
+
+            WumpusGame.State = WumpusGame.GameState.RequestRoomsToShoot;
+
+            InputManager.Instance.AddKeyboardTypedAction(response =>
             {
-                Console.Write(Message.NumOfRoomsToShootPrompt);
-                response = Console.ReadLine();
-            } while (!int.TryParse(response, out numOfRooms) || numOfRooms < lowerBound || numOfRooms > upperBound);
-
-            return numOfRooms;
+                int numOfRooms;
+                if (!int.TryParse(response, out numOfRooms) || numOfRooms < lowerBound || numOfRooms > upperBound)
+                {
+                    string error = $"{response} either is not an int or not in the bounds [{lowerBound}, {upperBound}]";
+                    Log.AddMessageToWrite(error);
+                }
+                else
+                {
+                    Shoot(numOfRooms, wumpusRoomNumber);
+                    WumpusGame.State = WumpusGame.GameState.ShootingArrow;
+                }
+            });
         }
 
         // Traverses the given rooms or randomly selected adjacent rooms if the given rooms are not traversable.
         // Checks if the arrow hit the player, wumpus, or was a miss, and game state is set accordingly.
-        private EndState ShootArrow(IReadOnlyCollection<int> roomsToTraverse, int wumpusRoomNum)
+        private void ShootArrow(IReadOnlyCollection<int> roomsToTraverse, int wumpusRoomNum)
         {
             var endstate = Traverse(roomsToTraverse).Select(r => HitTarget(r, wumpusRoomNum))
                 .FirstOrDefault(e => e.IsGameOver);
 
-            if (endstate != null) return endstate;
+            if (endstate != null) return;
 
-            Console.WriteLine(Message.Missed);
-            return CrookedArrowCount == 0
-                ? new EndState(true, $"{Message.OutOfArrows}\n{Message.LoseMessage}")
-                : new EndState();
+            Log.AddMessageToWrite(Message.Missed);
+
+            if (CrookedArrowCount == 0)
+            {
+                string gameOver = $"{Message.OutOfArrows}\n{Message.LoseMessage}";
+                Log.AddMessageToWrite(gameOver);
+                WumpusGame.State = WumpusGame.GameState.GameOver;
+            }
         }
 
         private EndState HitTarget(int currentRoom, int wumpusRoomNum)
@@ -105,7 +118,8 @@ namespace hunt_the_wumpus_2d.Entities
             EndState endState;
             if (RoomNumber == currentRoom)
             {
-                endState = new EndState(true, $"{Message.ArrowGotYou}\n{Message.LoseMessage}");
+                endState = new EndState(true,
+                    $"{Message.ArrowGotYou}\n{Message.LoseMessage}");
             }
             else if (wumpusRoomNum == currentRoom)
             {

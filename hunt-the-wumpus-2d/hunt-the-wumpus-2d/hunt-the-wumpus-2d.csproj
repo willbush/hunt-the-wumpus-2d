@@ -47,9 +47,10 @@
     <Compile Include="Entities\SuperBats.cs" />
     <Compile Include="Entities\Wumpus.cs" />
     <Compile Include="InputManager.cs" />
+    <Compile Include="KeyboardEventArgs.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Message.cs" />
-    <Compile Include="MessageBroker.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="WumpusGame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

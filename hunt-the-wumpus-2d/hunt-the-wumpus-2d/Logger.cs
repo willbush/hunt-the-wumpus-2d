@@ -3,22 +3,22 @@ using Microsoft.Xna.Framework;
 
 namespace hunt_the_wumpus_2d
 {
-    internal class MessageBroker
+    internal class Logger
     {
         private const int MessageLimit = 25;
         private const int MessageOffset = 20;
         private const int XPosition = 570;
-        private const int YPosition = 500;
-        private static MessageBroker _instance;
+        private const int YPosition = 490;
+        private static Logger _instance;
 
-        private MessageBroker()
+        private Logger()
         {
             Messages = new List<Message>();
         }
 
         internal List<Message> Messages { get; }
 
-        public static MessageBroker Instance => _instance ?? (_instance = new MessageBroker());
+        public static Logger Instance => _instance ?? (_instance = new Logger());
 
         public void AddMessageToWrite(string message, Color color = default(Color))
         {
