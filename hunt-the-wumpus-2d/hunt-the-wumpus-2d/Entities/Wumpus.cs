@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.TextureAtlases;
 
 namespace hunt_the_wumpus_2d.Entities
 {
@@ -8,7 +9,7 @@ namespace hunt_the_wumpus_2d.Entities
     {
         private readonly int _initialRoomNumber;
 
-        public Wumpus(int roomNumber) : base(roomNumber)
+        public Wumpus(int roomNumber, TextureRegion2D texture) : base(roomNumber, texture)
         {
             _initialRoomNumber = roomNumber;
         }

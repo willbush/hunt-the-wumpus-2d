@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.TextureAtlases;
 
 namespace hunt_the_wumpus_2d.Entities
 {
     public class BottomlessPit : DeadlyHazard
     {
-        public BottomlessPit(int roomNumber) : base(roomNumber)
+        public BottomlessPit(int roomNumber, TextureRegion2D texture) : base(roomNumber, texture)
         {
         }
 

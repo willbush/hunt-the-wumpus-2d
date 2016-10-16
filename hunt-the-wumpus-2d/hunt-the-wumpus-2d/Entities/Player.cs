@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.TextureAtlases;
 
 namespace hunt_the_wumpus_2d.Entities
 {
@@ -11,7 +12,7 @@ namespace hunt_the_wumpus_2d.Entities
         private const int MaxNumberOfArrows = 5;
         private readonly int _initialRoomNum;
 
-        public Player(int roomNumber) : base(roomNumber)
+        public Player(int roomNumber, TextureRegion2D texture) : base(roomNumber, texture)
         {
             _initialRoomNum = roomNumber;
         }

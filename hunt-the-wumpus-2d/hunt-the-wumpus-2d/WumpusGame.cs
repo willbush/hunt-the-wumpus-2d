@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using hunt_the_wumpus_2d.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,7 +20,7 @@ namespace hunt_the_wumpus_2d
         private Camera2D _camera;
         private SpriteFont _font;
         private Map _map;
-        private MessageHandler _messageHandler;
+        private MessageBroker _messageBroker;
         private SpriteBatch _spriteBatch;
         private TiledMap _tiledMap;
         private readonly bool _isCheatMode;
@@ -36,11 +37,9 @@ namespace hunt_the_wumpus_2d
         {
             const int weight = 900;
             const int height = 520;
-            _map = new Map(_isCheatMode);
             _camera = new Camera2D(new BoxingViewportAdapter(Window, GraphicsDevice, weight, height));
             _graphics.PreferredBackBufferWidth = weight;
             _graphics.PreferredBackBufferHeight = height;
-            _graphics.ApplyChanges();
             _graphics.ApplyChanges();
             base.Initialize();
         }
@@ -49,12 +48,29 @@ namespace hunt_the_wumpus_2d
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _messageHandler = MessageHandler.Instance(Content);
-            _messageHandler.LoadContent();
+            _font = Content.Load<SpriteFont>("output");
+            _messageBroker = MessageBroker.Instance;
 
             _tiledMap = Content.Load<TiledMap>("map");
             _camera.LookAt(new Vector2(_tiledMap.WidthInPixels, _tiledMap.HeightInPixels));
-            _font = Content.Load<SpriteFont>("output");
+            _map = new Map(_isCheatMode, _tiledMap);
+
+
+//            var rooms = _tiledMap.GetObjectGroup("entities").Objects
+//                .Where(e => e.Type == "room");
+//
+//            int gid = player.Gid ?? default(int);
+//
+//            var playerTexture = _tiledMap.GetTileRegion(gid);
+//
+//            var sprite = new Sprite(playerTexture) {Position = new Vector2(player.X, player.Y)};
+//            _spriteBatch.Draw(sprite);
+//
+//            foreach (var room in rooms)
+//            {
+//                _spriteBatch.DrawString(_font, room.Name, new Vector2(room.X - 25, room.Y - 40), Color.White);
+//                _spriteBatch.Draw(new Sprite(playerTexture) {Position = new Vector2(room.X, room.Y)});
+//            }
         }
 
         protected override void UnloadContent()
@@ -77,9 +93,9 @@ namespace hunt_the_wumpus_2d
                 Exit();
 
             if (_inputManager.KeyPressed(Keys.A))
-                _messageHandler.AddMessageToWrite("Super bat attack blah blah blah here you go.");
+                _messageBroker.AddMessageToWrite("Super bat attack blah blah blah here you go.");
             if (_inputManager.KeyPressed(Keys.B))
-                _messageHandler.AddMessageToWrite("Hi there.");
+                _messageBroker.AddMessageToWrite("Hi there.");
 
             base.Update(gameTime);
         }
@@ -93,26 +109,8 @@ namespace hunt_the_wumpus_2d
             GraphicsDevice.Clear(Color.Black);
             _spriteBatch.Begin();
             _tiledMap.Draw(_spriteBatch, _camera);
+            _messageBroker.Messages.ForEach(m => _spriteBatch.DrawString(_font, m.Value, m.Position, m.Color));
 
-            var rooms = _tiledMap.GetObjectGroup("entities").Objects
-                .Where(e => e.Type == "room");
-            var player = _tiledMap.GetObjectGroup("entities").Objects
-                .Single(e => e.Type == "pit");
-
-            int gid = player.Gid ?? default(int);
-
-            var playerTexture = _tiledMap.GetTileRegion(gid);
-
-            var sprite = new Sprite(playerTexture) {Position = new Vector2(player.X, player.Y)};
-            _spriteBatch.Draw(sprite);
-
-            foreach (var room in rooms)
-            {
-                _spriteBatch.DrawString(_font, room.Name, new Vector2(room.X - 25, room.Y - 40), Color.White);
-                _spriteBatch.Draw(new Sprite(playerTexture) {Position = new Vector2(room.X, room.Y)});
-            }
-
-            _messageHandler.Draw(_spriteBatch);
             _spriteBatch.End();
             base.Draw(gameTime);
         }
