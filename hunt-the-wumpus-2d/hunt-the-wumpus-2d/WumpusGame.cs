@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Maps.Tiled;
 using MonoGame.Extended.ViewportAdapters;
 
@@ -19,11 +20,13 @@ namespace hunt_the_wumpus_2d
             ActionPrompt,
             ShootingArrow,
             PlayerMove,
-            RequestNumOfRoomsToTraverse
+            PlayAgain,
+            SameSetup
         }
 
         public static GameState State = GameState.Playing;
 
+        private static readonly Logger Log = Logger.Instance;
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
         private readonly bool _isCheatMode;
@@ -57,6 +60,8 @@ namespace hunt_the_wumpus_2d
             _graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height;
             _graphics.ApplyChanges();
 
+            Log.Write("Press Escape at any point to quit.");
+
             _inputManager.KeyPressed += (sender, args) =>
             {
                 if (args.Key == Keys.Escape)
@@ -70,6 +75,26 @@ namespace hunt_the_wumpus_2d
                 else if (State == GameState.ActionPrompt && args.Key == Keys.M)
                     _map.PerformCommand("M");
                 else if (State == GameState.ActionPrompt && args.Key == Keys.Q)
+                    Exit();
+            };
+
+            _inputManager.KeyReleased += (sender, args) =>
+            {
+                if (State == GameState.SameSetup && args.Key == Keys.Y)
+                {
+                    State = GameState.Playing;
+                    _map.Reset();
+                }
+            };
+
+            _inputManager.KeyReleased += (sender, args) =>
+            {
+                if (State == GameState.PlayAgain && args.Key == Keys.Y)
+                {
+                    Log.Write(Message.SetupPrompt);
+                    State = GameState.SameSetup;
+                }
+                else if (State == GameState.PlayAgain && args.Key == Keys.N)
                     Exit();
             };
             base.Initialize();
@@ -106,8 +131,15 @@ namespace hunt_the_wumpus_2d
             if (State == GameState.Playing)
             {
                 _map.Update();
-                _logger.Write(Message.ActionPrompt);
-                State = GameState.ActionPrompt;
+                if (State == GameState.Playing)
+                {
+                    _logger.Write(Message.ActionPrompt);
+                    State = GameState.ActionPrompt;
+                }
+                else if (State == GameState.GameOver)
+                {
+                    State = GameState.PlayAgain;
+                }
             }
             base.Update(gameTime);
         }
@@ -120,9 +152,10 @@ namespace hunt_the_wumpus_2d
         {
             GraphicsDevice.Clear(Color.Black);
             _spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: _viewportAdapter.GetScaleMatrix());
+            _logger.Messages.ForEach(m => _spriteBatch.DrawString(_font, m.Value, m.Position, m.Color));
+
             _tiledMap.Draw(_spriteBatch, _camera);
             _map.Draw(_spriteBatch);
-            _logger.Messages.ForEach(m => _spriteBatch.DrawString(_font, m.Value, m.Position, m.Color));
 
             _spriteBatch.End();
             base.Draw(gameTime);

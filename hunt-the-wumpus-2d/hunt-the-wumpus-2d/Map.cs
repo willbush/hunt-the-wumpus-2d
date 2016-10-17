@@ -48,7 +48,16 @@ namespace hunt_the_wumpus_2d
             InitializeBottomlessPits(tiledMap, occupiedRooms);
 
             if (IsCheatMode)
+            {
                 PrintHazards();
+                foreach (var hazard in _hazards)
+                    hazard.IsVisible = true;
+            }
+            else
+            {
+                foreach (var hazard in _hazards)
+                    hazard.IsVisible = false;
+            }
         }
 
         public bool IsCheatMode { get; }
@@ -165,7 +174,16 @@ namespace hunt_the_wumpus_2d
             Wumpus.Reset();
 
             if (IsCheatMode)
+            {
                 PrintHazards();
+                foreach (var hazard in _hazards)
+                    hazard.IsVisible = true;
+            }
+            else
+            {
+                foreach (var hazard in _hazards)
+                    hazard.IsVisible = false;
+            }
         }
 
         /// <summary>
@@ -193,8 +211,16 @@ namespace hunt_the_wumpus_2d
         /// </summary>
         public void Update()
         {
-            Log.Write("");
+            CheckPlayerPosition();
+
+            foreach (var e in _entities)
+                e.Position = _roomToPosition[e.RoomNumber];
+
             Wumpus.Update(this);
+
+            if (WumpusGame.State == WumpusGame.GameState.GameOver) return;
+
+            Log.Write("");
             var roomsAdjacentToPlayer = Rooms[Player.RoomNumber];
             _hazards.ForEach(
                 h =>
@@ -202,8 +228,6 @@ namespace hunt_the_wumpus_2d
                     if (roomsAdjacentToPlayer.Contains(h.RoomNumber))
                         h.PrintHazardWarning();
                 });
-            foreach (var e in _entities)
-                e.Position = _roomToPosition[e.RoomNumber];
 
             Player.PrintLocation();
         }
@@ -225,29 +249,31 @@ namespace hunt_the_wumpus_2d
         public void PerformCommand(string command)
         {
             if (command == "M")
-            {
                 Player.Move();
-                CheckPlayerMovement();
-            }
             else if (command == "S")
-            {
                 Player.ShootArrow(Wumpus.RoomNumber);
-            }
         }
 
         // Game is over if the player moves into a deadly room.
         // If the game's not over but the power got snatched, then loop and check again until the player
         // doesn't get snatched or gets killed.
-        private EndState CheckPlayerMovement()
+        private void CheckPlayerPosition()
         {
             EndState endState;
+
             do
             {
                 endState = _deadlyHazards
                     .Select(h => h.DetermineEndState(Player.RoomNumber))
                     .FirstOrDefault(s => s.IsGameOver) ?? new EndState();
             } while (!endState.IsGameOver && _superBats.Any(b => b.TrySnatch(Player)));
-            return endState;
+
+            if (endState.IsGameOver)
+            {
+                endState.Print();
+                Log.Write(Message.PlayPrompt);
+                WumpusGame.State = WumpusGame.GameState.GameOver;
+            }
         }
 
         public static void PrintAdjacentRoomNumbers(int roomNum)
@@ -278,7 +304,7 @@ namespace hunt_the_wumpus_2d
             {
                 var position = _roomToPosition[roomNum];
                 const int xOffset = 8;
-                const int yOffset = 40;
+                const int yOffset = 10;
                 var v = new Vector2(position.X - xOffset, position.Y - yOffset);
                 spriteBatch.DrawString(_font, roomNum.ToString(), v, Color.Red);
             }
