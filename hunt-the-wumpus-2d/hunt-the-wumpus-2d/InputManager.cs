@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.InputListeners;
@@ -14,9 +16,11 @@ namespace hunt_the_wumpus_2d
         private string _typedString = string.Empty;
         private Keys _previousKey;
         private KeyboardState _previousState;
+        private HashSet<Action<string>> _actions;
 
-        public InputManager() : this(new KeyboardListenerSettings())
+        private InputManager() : this(new KeyboardListenerSettings())
         {
+            _actions = new HashSet<Action<string>>();
         }
 
         public InputManager(KeyboardListenerSettings settings)
@@ -95,9 +99,20 @@ namespace hunt_the_wumpus_2d
             }
         }
 
-        public void AddKeyboardTypedAction(Action<string> action)
+        public void AddTypedActionPrompt(Action<string> action)
         {
-            KeyTyped += (sender, args) =>
+            _typedString = string.Empty;
+
+            if (!_actions.Contains(action))
+            {
+                KeyTyped += OnKeyTyped(action);
+                _actions.Add(action);
+            }
+        }
+
+        private EventHandler<KeyboardEventArgs> OnKeyTyped(Action<string> responseParser)
+        {
+            return (sender, args) =>
             {
                 if (args.Key == Keys.Back && _typedString.Length > 0)
                 {
@@ -105,7 +120,8 @@ namespace hunt_the_wumpus_2d
                 }
                 else if (args.Key == Keys.Enter)
                 {
-                    action(_typedString);
+                    responseParser(_typedString);
+                    _typedString = string.Empty;
                 }
                 else
                 {

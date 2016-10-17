@@ -12,11 +12,11 @@ namespace hunt_the_wumpus_2d
 {
     public class Map
     {
-        private readonly SpriteFont _font;
         public const int NumOfRooms = 20;
-        private static readonly Logger Logger = Logger.Instance;
+        private static readonly Logger Log = Logger.Instance;
         private readonly List<DeadlyHazard> _deadlyHazards;
         private readonly List<Entity> _entities;
+        private readonly SpriteFont _font;
         private readonly List<Hazard> _hazards;
         private readonly HashSet<int> _roomsWithStaticHazards;
         private readonly Dictionary<int, Vector2> _roomToPosition;
@@ -27,7 +27,7 @@ namespace hunt_the_wumpus_2d
             _font = font;
             IsCheatMode = isCheatMode;
             var occupiedRooms = new HashSet<int>();
-            _hazards = new List<Hazard> {Wumpus};
+            _hazards = new List<Hazard>();
             _deadlyHazards = new List<DeadlyHazard>();
             _roomsWithStaticHazards = new HashSet<int>();
             _superBats = new List<SuperBats>();
@@ -39,6 +39,7 @@ namespace hunt_the_wumpus_2d
 
             Wumpus = CreateWumpus(tiledMap, occupiedRooms);
             _entities.Add(Wumpus);
+            _hazards.Add(Wumpus);
 
             // initialize super bats
             InitializeSuperBats(tiledMap, occupiedRooms);
@@ -192,17 +193,19 @@ namespace hunt_the_wumpus_2d
         /// </summary>
         public void Update()
         {
-//            Logger.AddMessageToWrite("");
-//            Wumpus.Update(this);
-//
-//            var roomsAdjacentToPlayer = Rooms[Player.RoomNumber];
-//            _hazards.ForEach(
-//                h =>
-//                {
-//                    if (roomsAdjacentToPlayer.Contains(h.RoomNumber))
-//                        h.PrintHazardWarning();
-//                });
-//            Player.PrintLocation();
+            Log.Write("");
+            Wumpus.Update(this);
+            var roomsAdjacentToPlayer = Rooms[Player.RoomNumber];
+            _hazards.ForEach(
+                h =>
+                {
+                    if (roomsAdjacentToPlayer.Contains(h.RoomNumber))
+                        h.PrintHazardWarning();
+                });
+            foreach (var e in _entities)
+                e.Position = _roomToPosition[e.RoomNumber];
+
+            Player.PrintLocation();
         }
 
         /// <summary>
@@ -219,26 +222,17 @@ namespace hunt_the_wumpus_2d
         /// </summary>
         /// <param name="command">player's input command</param>
         /// <returns>game end state</returns>
-        public EndState GetEndState(string command)
+        public void PerformCommand(string command)
         {
-            EndState endState;
-            switch (command)
+            if (command == "M")
             {
-                case "M":
-                    Player.Move();
-                    endState = CheckPlayerMovement();
-                    break;
-                case "S":
-                    endState = Player.ShootArrow(Wumpus.RoomNumber);
-                    break;
-                case "Q":
-                    endState = new EndState(true, "");
-                    break;
-                default:
-                    endState = new EndState();
-                    break;
+                Player.Move();
+                CheckPlayerMovement();
             }
-            return endState;
+            else if (command == "S")
+            {
+                Player.ShootArrow(Wumpus.RoomNumber);
+            }
         }
 
         // Game is over if the player moves into a deadly room.
@@ -262,7 +256,7 @@ namespace hunt_the_wumpus_2d
             foreach (int room in Rooms[roomNum])
                 sb.Append(room + " ");
 
-            Logger.AddMessageToWrite($"Tunnels lead to {sb}");
+            Log.Write($"Tunnels lead to {sb}");
         }
 
         public static bool IsAdjacent(int currentRoom, int adjacentRoom)
@@ -272,7 +266,7 @@ namespace hunt_the_wumpus_2d
 
         private void PrintHazards()
         {
-            Logger.AddMessageToWrite("");
+            Log.Write("");
             _hazards.ForEach(h => h.PrintLocation());
         }
 

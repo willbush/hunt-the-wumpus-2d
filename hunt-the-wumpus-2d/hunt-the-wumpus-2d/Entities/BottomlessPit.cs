@@ -6,6 +6,8 @@ namespace hunt_the_wumpus_2d.Entities
 {
     public class BottomlessPit : DeadlyHazard
     {
+        private static readonly Logger Log = Logger.Instance;
+
         public BottomlessPit(int roomNumber, TextureRegion2D texture, Vector2 position)
             : base(roomNumber, texture, position)
         {
@@ -18,12 +20,12 @@ namespace hunt_the_wumpus_2d.Entities
 
         public override void PrintLocation()
         {
-            Console.WriteLine($"Bottomless pit in room {RoomNumber}");
+            Log.Write($"Bottomless pit in room {RoomNumber}");
         }
 
         public override void PrintHazardWarning()
         {
-            Console.WriteLine(Message.PitWarning);
+            Log.Write(Message.PitWarning);
         }
 
         public override EndState DetermineEndState(int playerRoomNumber)

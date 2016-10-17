@@ -20,7 +20,7 @@ namespace hunt_the_wumpus_2d
 
         public static Logger Instance => _instance ?? (_instance = new Logger());
 
-        public void AddMessageToWrite(string message, Color color = default(Color))
+        public void Write(string message, Color color = default(Color))
         {
             if (color == default(Color))
                 color = Color.White;

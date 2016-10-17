@@ -6,6 +6,8 @@ namespace hunt_the_wumpus_2d.Entities
 {
     public class SuperBats : Hazard
     {
+        private static readonly Logger Log = Logger.Instance;
+
         public SuperBats(int roomNumber, TextureRegion2D texture, Vector2 position)
             : base(roomNumber, texture, position)
         {
@@ -18,12 +20,12 @@ namespace hunt_the_wumpus_2d.Entities
 
         public override void PrintLocation()
         {
-            Console.WriteLine($"SuperBats in room {RoomNumber}");
+            Log.Write($"SuperBats in room {RoomNumber}");
         }
 
         public override void PrintHazardWarning()
         {
-            Console.WriteLine(Message.BatWarning);
+            Log.Write(Message.BatWarning);
         }
 
         /// <summary>
@@ -36,7 +38,7 @@ namespace hunt_the_wumpus_2d.Entities
         {
             if (player.RoomNumber != RoomNumber) return false;
 
-            Console.WriteLine(Message.BatSnatch);
+            Log.Write(Message.BatSnatch);
             player.Move(Map.GetAnyRandomRoomNumber());
             return true;
         }

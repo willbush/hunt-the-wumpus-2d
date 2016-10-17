@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace hunt_the_wumpus_2d
+﻿namespace hunt_the_wumpus_2d
 {
     /// <summary>
     ///     This class basically serves as a immutable tuple that allows me to pass
@@ -9,6 +7,8 @@ namespace hunt_the_wumpus_2d
     /// </summary>
     public class EndState
     {
+        private static readonly Logger Log = Logger.Instance;
+
         internal EndState()
         {
         }
@@ -24,11 +24,11 @@ namespace hunt_the_wumpus_2d
 
         public void Print()
         {
-            Console.WriteLine();
+            Log.Write("");
             if (string.IsNullOrEmpty(GameOverMessage)) return;
 
-            Console.WriteLine(GameOverMessage);
-            Console.WriteLine();
+            Log.Write(GameOverMessage);
+            Log.Write("");
         }
     }
 }

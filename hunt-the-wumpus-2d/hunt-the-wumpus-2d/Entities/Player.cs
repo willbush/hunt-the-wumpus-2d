@@ -10,6 +10,7 @@ namespace hunt_the_wumpus_2d.Entities
     {
         private const int MaxNumberOfArrows = 5;
         private static readonly Logger Log = Logger.Instance;
+        private static readonly InputManager Input = InputManager.Instance;
         private readonly int _initialRoomNum;
 
         public Player(int roomNumber, TextureRegion2D texture, Vector2 position) : base(roomNumber, texture, position)
@@ -25,16 +26,22 @@ namespace hunt_the_wumpus_2d.Entities
         /// </summary>
         public void Move()
         {
-            Console.Write("Where to? ");
-            string response = Console.ReadLine();
+            Log.Write("Where to? ");
+            WumpusGame.State = WumpusGame.GameState.PlayerMove;
 
-            int adjacentRoom;
-            while (!int.TryParse(response, out adjacentRoom) || !Map.IsAdjacent(RoomNumber, adjacentRoom))
+            Input.AddTypedActionPrompt(response =>
             {
-                Console.Write("Not Possible - Where to? ");
-                response = Console.ReadLine();
-            }
-            RoomNumber = adjacentRoom;
+                int adjacentRoom;
+                if (!int.TryParse(response, out adjacentRoom) || !Map.IsAdjacent(RoomNumber, adjacentRoom))
+                {
+                    Log.Write($"{response} Not Possible - Where to? ");
+                }
+                else
+                {
+                    RoomNumber = adjacentRoom;
+                    WumpusGame.State = WumpusGame.GameState.Playing;
+                }
+            });
         }
 
         internal void Move(int roomNumber)
@@ -63,7 +70,7 @@ namespace hunt_the_wumpus_2d.Entities
             }
             else
             {
-                Log.AddMessageToWrite("OK, suit yourself...");
+                Log.Write("OK, suit yourself...");
             }
         }
 
@@ -73,22 +80,22 @@ namespace hunt_the_wumpus_2d.Entities
             const int lowerBound = 0;
             const int upperBound = 5;
 
-            Log.AddMessageToWrite(Message.NumOfRoomsToShootPrompt);
+            Log.Write(Message.NumOfRoomsToShootPrompt);
 
-            WumpusGame.State = WumpusGame.GameState.RequestRoomsToShoot;
+            WumpusGame.State = WumpusGame.GameState.RequestNumOfRoomsToTraverse;
 
-            InputManager.Instance.AddKeyboardTypedAction(response =>
+            Input.AddTypedActionPrompt(response =>
             {
                 int numOfRooms;
                 if (!int.TryParse(response, out numOfRooms) || numOfRooms < lowerBound || numOfRooms > upperBound)
                 {
                     string error = $"{response} either is not an int or not in the bounds [{lowerBound}, {upperBound}]";
-                    Log.AddMessageToWrite(error);
+                    Log.Write(error);
                 }
                 else
                 {
                     Shoot(numOfRooms, wumpusRoomNumber);
-                    WumpusGame.State = WumpusGame.GameState.ShootingArrow;
+                    WumpusGame.State = WumpusGame.GameState.Playing;
                 }
             });
         }
@@ -102,19 +109,19 @@ namespace hunt_the_wumpus_2d.Entities
 
             if (endstate != null) return;
 
-            Log.AddMessageToWrite(Message.Missed);
+            Log.Write(Message.Missed);
 
             if (CrookedArrowCount == 0)
             {
                 string gameOver = $"{Message.OutOfArrows}\n{Message.LoseMessage}";
-                Log.AddMessageToWrite(gameOver);
+                Log.Write(gameOver);
                 WumpusGame.State = WumpusGame.GameState.GameOver;
             }
         }
 
         private EndState HitTarget(int currentRoom, int wumpusRoomNum)
         {
-            Console.WriteLine(currentRoom);
+            Log.Write(currentRoom.ToString());
             EndState endState;
             if (RoomNumber == currentRoom)
             {
@@ -195,16 +202,16 @@ namespace hunt_the_wumpus_2d.Entities
 
             while (count <= numOfRooms)
             {
-                Console.Write(Message.RoomNumPrompt);
+                Log.Write(Message.RoomNumPrompt);
                 int roomNumber;
                 if (!int.TryParse(Console.ReadLine(), out roomNumber) || roomNumber < 0 || roomNumber > Map.NumOfRooms)
                 {
-                    Console.WriteLine("Bad number - try again:");
+                    Log.Write("Bad number - try again:");
                     continue;
                 }
                 if (IsTooCrooked(roomNumber, rooms))
                 {
-                    Console.WriteLine(Message.TooCrooked);
+                    Log.Write(Message.TooCrooked);
                 }
                 else
                 {
@@ -233,7 +240,7 @@ namespace hunt_the_wumpus_2d.Entities
 
         public override void PrintLocation()
         {
-            Console.WriteLine($"You are in room {RoomNumber}");
+            Log.Write($"You are in room {RoomNumber}");
             Map.PrintAdjacentRoomNumbers(RoomNumber);
         }
 

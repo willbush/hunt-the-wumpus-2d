@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
@@ -18,24 +17,23 @@ namespace hunt_the_wumpus_2d
             Playing,
             GameOver,
             ActionPrompt,
-            MapUpdate,
-            RequestRoomsToShoot,
-            ShootingArrow
+            ShootingArrow,
+            PlayerMove,
+            RequestNumOfRoomsToTraverse
         }
+
+        public static GameState State = GameState.Playing;
 
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
         private readonly bool _isCheatMode;
-        private string _typedString = String.Empty;
         private Camera2D _camera;
         private SpriteFont _font;
-        private Map _map;
         private Logger _logger;
+        private Map _map;
         private SpriteBatch _spriteBatch;
         private TiledMap _tiledMap;
         private BoxingViewportAdapter _viewportAdapter;
-
-        public static GameState State = GameState.MapUpdate;
 
         public WumpusGame(bool isCheatMode)
         {
@@ -68,32 +66,12 @@ namespace hunt_the_wumpus_2d
             _inputManager.KeyReleased += (sender, args) =>
             {
                 if (State == GameState.ActionPrompt && args.Key == Keys.S)
-                    _map.GetEndState("S");
+                    _map.PerformCommand("S");
                 else if (State == GameState.ActionPrompt && args.Key == Keys.M)
-                    _map.GetEndState("M");
+                    _map.PerformCommand("M");
                 else if (State == GameState.ActionPrompt && args.Key == Keys.Q)
                     Exit();
-
-                State = GameState.Playing;
             };
-
-            _inputManager.KeyTyped += (sender, args) =>
-            {
-                if (args.Key == Keys.Back && _typedString.Length > 0)
-                {
-                    _typedString = _typedString.Substring(0, _typedString.Length - 1);
-                }
-                else if (args.Key == Keys.Enter)
-                {
-                    _logger.AddMessageToWrite(_typedString);
-                    _typedString = string.Empty;
-                }
-                else
-                {
-                    _typedString += args.Character?.ToString() ?? "";
-                }
-            };
-
             base.Initialize();
         }
 
@@ -125,13 +103,12 @@ namespace hunt_the_wumpus_2d
         {
             _inputManager.Update(gameTime);
 
-            if (State == GameState.MapUpdate)
+            if (State == GameState.Playing)
             {
                 _map.Update();
-                _logger.AddMessageToWrite(Message.ActionPrompt);
+                _logger.Write(Message.ActionPrompt);
                 State = GameState.ActionPrompt;
             }
-
             base.Update(gameTime);
         }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.TextureAtlases;
 
 namespace hunt_the_wumpus_2d.Entities
@@ -8,6 +7,7 @@ namespace hunt_the_wumpus_2d.Entities
     public class Wumpus : DeadlyHazard
     {
         private readonly int _initialRoomNumber;
+        private static readonly Logger Log = Logger.Instance;
 
         public Wumpus(int roomNumber, TextureRegion2D texture, Vector2 position)
             : base(roomNumber, texture, position)
@@ -24,7 +24,7 @@ namespace hunt_the_wumpus_2d.Entities
         {
             if (!IsAwake && map.Player.RoomNumber == RoomNumber)
             {
-                Console.WriteLine(Message.WumpusBump);
+                Log.Write(Message.WumpusBump);
                 IsAwake = true;
             }
             if (!IsAwake && map.Player.CrookedArrowCount < map.Player.MaxArrows)
@@ -43,7 +43,7 @@ namespace hunt_the_wumpus_2d.Entities
 
             RoomNumber = map.GetSafeRoomNextTo(RoomNumber);
             if (map.IsCheatMode)
-                Console.WriteLine($"Wumpus moved to {RoomNumber}");
+                Log.Write($"Wumpus moved to {RoomNumber}");
         }
 
         private static bool WumpusFeelsLikeMoving()
@@ -58,12 +58,12 @@ namespace hunt_the_wumpus_2d.Entities
 
         public override void PrintLocation()
         {
-            Console.WriteLine($"Wumpus in room {RoomNumber}");
+            Log.Write($"Wumpus in room {RoomNumber}");
         }
 
         public override void PrintHazardWarning()
         {
-            Console.WriteLine(Message.WumpusWarning);
+            Log.Write(Message.WumpusWarning);
         }
 
         /// <summary>
