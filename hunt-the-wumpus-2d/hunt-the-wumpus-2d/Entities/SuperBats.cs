@@ -39,6 +39,7 @@ namespace hunt_the_wumpus_2d.Entities
             if (player.RoomNumber != RoomNumber) return false;
 
             Log.Write(Message.BatSnatch);
+            IsVisible = true;
             player.Move(Map.GetAnyRandomRoomNumber());
             return true;
         }

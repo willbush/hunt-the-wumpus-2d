@@ -30,9 +30,17 @@ namespace hunt_the_wumpus_2d.Entities
 
         public override EndState DetermineEndState(int playerRoomNumber)
         {
-            return playerRoomNumber == RoomNumber
-                ? new EndState(true, $"{Message.FellInPit}\n{Message.LoseMessage}")
-                : new EndState();
+            EndState endState;
+            if (playerRoomNumber == RoomNumber)
+            {
+                IsVisible = true;
+                endState = new EndState(true, $"{Message.FellInPit}\n{Message.LoseMessage}");
+            }
+            else
+            {
+                endState = new EndState();
+            }
+            return endState;
         }
     }
 }

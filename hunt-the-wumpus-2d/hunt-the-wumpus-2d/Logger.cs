@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 
 namespace hunt_the_wumpus_2d
@@ -8,7 +9,7 @@ namespace hunt_the_wumpus_2d
         private const int MessageLimit = 25;
         private const int MessageOffset = 20;
         private const int XPosition = 570;
-        private const int YPosition = 490;
+        private const int YPosition = 480;
         private static Logger _instance;
 
         private Logger()
@@ -27,6 +28,7 @@ namespace hunt_the_wumpus_2d
 
             if (Messages.Count >= MessageLimit)
                 Messages.RemoveAt(0);
+
 
             Messages.ForEach(m => m.Position.Y -= MessageOffset);
 

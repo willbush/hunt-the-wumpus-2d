@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Channels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.InputListeners;
@@ -11,12 +10,12 @@ namespace hunt_the_wumpus_2d
     public class InputManager
     {
         private static InputManager _instance;
+        private readonly HashSet<Action<string>> _actions;
         private bool _isInitial;
         private TimeSpan _lastPressTime;
-        private string _typedString = string.Empty;
         private Keys _previousKey;
         private KeyboardState _previousState;
-        private HashSet<Action<string>> _actions;
+        private string _typedString = string.Empty;
 
         private InputManager() : this(new KeyboardListenerSettings())
         {

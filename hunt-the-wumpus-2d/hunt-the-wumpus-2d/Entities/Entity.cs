@@ -15,13 +15,14 @@ namespace hunt_the_wumpus_2d.Entities
         }
 
         public int RoomNumber { get; protected set; }
+        public bool IsVisible { get; set; } = true;
         public TextureRegion2D Texture { get; }
         public Vector2 Position { get; set; }
         public abstract void Update(GameTime time);
 
         public virtual void Draw(SpriteBatch batch)
         {
-            batch.Draw(new Sprite(Texture) {Position = Position});
+            batch.Draw(new Sprite(Texture) {Position = Position, IsVisible = IsVisible});
         }
 
         public abstract void PrintLocation();

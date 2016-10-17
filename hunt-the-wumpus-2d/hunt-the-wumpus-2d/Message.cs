@@ -2,11 +2,9 @@
 {
     internal class Message
     {
-        public const string ActionPrompt = "Shoot, Move or Quit(S - M - Q)? ";
+        public const string ActionPrompt = "Shoot, Move or Quit(press S, M, Q)? ";
         public const string PlayPrompt = "Play again? (Y-N)";
         public const string SetupPrompt = "Same Setup? (Y-N)";
-        public const string NumOfRoomsToShootPrompt = "No. or rooms (0-5)?";
-        public const string RoomNumPrompt = "Room #?";
 
         public const string PitWarning = "I feel a draft!";
         public const string WumpusWarning = "I Smell a Wumpus.";

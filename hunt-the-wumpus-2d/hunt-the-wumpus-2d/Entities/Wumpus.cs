@@ -31,19 +31,27 @@ namespace hunt_the_wumpus_2d.Entities
                 IsAwake = true;
 
             if (IsAwake)
-                Move(map);
+            {
+                if (!TryMove(map) && map.Player.RoomNumber == RoomNumber)
+                {
+                    Log.Write(Message.WumpusGotYou);
+                    Log.Write(Message.LoseMessage);
+                    WumpusGame.State = WumpusGame.GameState.GameOver;
+                }
+            }
         }
 
         /// <summary>
         ///     Moves the wumpus with a 75% chance.
         /// </summary>
-        private void Move(Map map)
+        private bool TryMove(Map map)
         {
-            if (!WumpusFeelsLikeMoving()) return;
+            if (!WumpusFeelsLikeMoving()) return false;
 
             RoomNumber = map.GetSafeRoomNextTo(RoomNumber);
             if (map.IsCheatMode)
                 Log.Write($"Wumpus moved to {RoomNumber}");
+            return true;
         }
 
         private static bool WumpusFeelsLikeMoving()
@@ -73,7 +81,7 @@ namespace hunt_the_wumpus_2d.Entities
         /// <returns>end state</returns>
         public override EndState DetermineEndState(int playerRoomNumber)
         {
-            if (IsAwake && playerRoomNumber == RoomNumber)
+            if (playerRoomNumber == RoomNumber)
                 return new EndState(true, $"{Message.WumpusGotYou}\n{Message.LoseMessage}");
 
             return new EndState();
