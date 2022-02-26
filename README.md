@@ -1,5 +1,10 @@
 # hunt-the-wumpus-2d
-2D implementation of the hunt the wumpus using mono game
+
+A (not a very good) 2D implementation of the hunt the wumpus using mono game.
+
+It's been a while since I wrote this, and this was my first time doing any event
+based programming. I just remember it being buggy and don't recall if it was
+fully implemented.
 
 ## setup
 
